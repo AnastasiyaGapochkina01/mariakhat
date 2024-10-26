@@ -1,0 +1,62 @@
+---
+  - name: Install PostgreSQL package
+    apt:
+      name: postgresql
+      update_cache: true
+      state: present
+
+  - name: Remove Data directory if exists
+    file:
+      path: "{{ postgres_data }}"
+      state: absent
+
+  - name: Create Data directory
+    file:
+      path: "{{ postgres_data }}"
+      mode: "755"
+      state: directory
+      owner: root
+      group: root
+
+  - name: Setup correct privileges on data dir
+    file:
+      path: "{{ postgres_data }}"
+      state: directory
+      owner: postgres
+      group: postgres
+
+  - name: Init PostgreSQL DB
+    command: sudo -u postgres /usr/lib/postgresql/13/bin/pg_ctl initdb -D "{{ postgres_data }}"
+
+  - name: Copy Postgres config
+    template:            
+      src: postgresql.conf.j2
+      dest: "{{ postgres_data }}/postgresql.conf"
+
+  - name: Generate Auth config 
+    template:           
+      src: pg_hba.conf.j2
+      dest: "{{ postgres_data }}/pg_hba.conf"
+
+  - name: Enable PostgreSQL service
+    systemd:
+      name: postgresql        
+      enabled: true
+      state: restarted
+
+  - name: Check PostgreSQL with SELECT query to db
+    command: sudo -u postgres psql -U postgres -d postgres -c "SELECT 1;"
+    register: query_result
+
+  - name: Display select res
+    debug:
+      var: query_result.stdout_lines
+
+  - name: Create Databases
+    command: sudo -u postgres psql -U postgres -c "SELECT 'CREATE DATABASE {{ item }}' WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '{{ item }}')"
+    loop: "{{ postgres_dbs }}"
+
+  - name: Create users
+    command: sudo -u postgres psql -U postgres -c "SELECT 'CREATE USER {{ item }}' WHERE NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '{{ item }}')"
+    loop: "{{ postgres_users }}"
+

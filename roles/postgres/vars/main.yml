@@ -1,0 +1,16 @@
+---
+# vars file for postgres
+postgres_data: /data/postgres/data
+listen_addresses: "*"
+postgres_port: 5432
+max_connections: 100
+shared_buffers: "128MB"
+postgres_dbs:
+  - db1
+  - db2
+postgres_users:
+  - app1
+  - app2
+  - postgres_exporter
+pg_hba:
+  - { type: local, database: all, user: all, address: all, method: trust }
