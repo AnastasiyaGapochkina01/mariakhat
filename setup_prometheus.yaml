@@ -1,0 +1,5 @@
+---
+- hosts: vms
+  become: yes
+  roles:
+    - prometheus
