@@ -2,7 +2,7 @@ services:
   counter:
     build:
       context: .
-      dockerfile: Dockerfile-multi
+      dockerfile: Dockerfile-lower-perm
     container_name: counter-app
     stdin_open: true
     tty: true
