@@ -1,0 +1,8 @@
+services:
+  counter:
+    build: .
+    container_name: counter-app
+    stdin_open: true
+    tty: true
+    ports:
+      - 8080:8080
