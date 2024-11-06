@@ -1,6 +1,8 @@
 services:
   counter:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile-multi
     container_name: counter-app
     stdin_open: true
     tty: true
